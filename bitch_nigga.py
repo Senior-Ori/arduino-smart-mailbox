@@ -3,24 +3,32 @@ from tkinter import *
 import tkinter as tk
 import time
 
-ser = serial.Serial('COM5', baudrate=115200, timeout=1)
+ser = serial.Serial('COM5', baudrate=57600, timeout=.01)
 time.sleep(1)
-# there is a problem with the data that has been received by arduino, (takes too much time to analyze input..)
 def turnOnLED():
-    ser.write(b'on')
+    ser.write("on\r\n".encode())
     # i=0
     while True:
     #     i+=2
     #     print(f"Loding... number of checks for serial input:~=[{i}]")
         if ser.in_waiting:
-            text1 = ser.readline()
-                #.decode('utf')
+            text1 = ser.readline().decode('utf')
             break
     my_var.set(str(text1))
 
 
 def turnOffLED():
-    ser.write(b'off')
+    ser.write("off\r\n".encode())
+    # i=0
+    while True:
+    #     i += 2
+    #     print(f"Loding... number of checks for serial input:~=[{i}]")
+        if ser.in_waiting:
+            text1 = ser.readline().decode('utf')
+            break
+    my_var.set(str(text1))
+def turnOnOffLED():
+    ser.write("triggerLed\r\n".encode())
     # i=0
     while True:
     #     i += 2
@@ -39,11 +47,14 @@ my_var.set("First click")
 
 btn_On = tk.Button(root,name="btn_On1", text="on", command=turnOnLED)
 btn_On.grid(row=0,column=0)
+btn_Off = tk.Button(root, text="off", command=turnOffLED)
+btn_Off.grid(row=0,column=1)
+btn_Trigger = tk.Button(root, text="Trigger", command=turnOnOffLED)
+btn_Trigger.grid(row=0,column=2)
 
 label = tk.Label(root, textvariable=my_var, fg="red")
 label.grid(row=1,column=0)
-btn_Off = tk.Button(root, text="off", command=turnOffLED)
-btn_Off.grid(row=0,column=1)
+
 
 root.geometry("350x350")
 root.mainloop()
