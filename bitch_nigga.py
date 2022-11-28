@@ -3,25 +3,24 @@ from tkinter import *
 import tkinter as tk
 import time
 
-ser = serial.Serial('COM5', baudrate=9600, timeout=.001)
+ser = serial.Serial('COM5', baudrate=115200, timeout=1)
 time.sleep(1)
 # there is a problem with the data that has been received by arduino, (takes too much time to analyze input..)
 def turnOnLED():
     ser.write(b'on')
-    time.sleep(1)
     # i=0
     while True:
     #     i+=2
     #     print(f"Loding... number of checks for serial input:~=[{i}]")
         if ser.in_waiting:
-            text1 = ser.readline().decode('utf')
+            text1 = ser.readline()
+                #.decode('utf')
             break
     my_var.set(str(text1))
 
 
 def turnOffLED():
     ser.write(b'off')
-    time.sleep(1)
     # i=0
     while True:
     #     i += 2
