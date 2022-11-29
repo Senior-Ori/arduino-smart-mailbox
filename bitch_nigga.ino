@@ -1,8 +1,31 @@
+#include <ArduinoJson.h>
+#include <ArduinoJson.hpp>
+
 const unsigned int MAX_INPUT = 50;
 
 void setup() {
   Serial.begin(57600);
   pinMode(LED_BUILTIN, OUTPUT);
+  const char* input =  "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
+  StaticJsonDocument<256> doc;
+  DeserializationError err=deserializeJson(doc,input);
+
+  if (err) {
+  Serial.print("ERRROR: ");
+  Serial.println(err.c_str());
+  return; //break, cos you got error..
+  }
+
+  const char* sensor = doc["sensor"];
+  long time = doc["time"];
+  float lat = doc["data"][0];
+  float lon = doc["data"][1];
+  
+  Serial.println(sensor);  
+  Serial.println(time);  
+  Serial.println(lat);  
+  Serial.println(lon);
+  
 }
 
 void processData(const char* data) {
@@ -53,3 +76,7 @@ void loop() {
   while (Serial.available() > 0)
     processIncomingByte(Serial.read());
 }
+
+
+// char* input;
+// size_t inputLength; (optional)
