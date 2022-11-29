@@ -2,7 +2,7 @@
 #include <ArduinoJson.hpp>
 
 const unsigned int MAX_INPUT = 256;
-byte ledMapB=0b00000000;
+byte ledMapB = 0b00000000;
 
 void setup() {
   Serial.begin(57600);
@@ -13,7 +13,6 @@ void processData(const char* input) {
   StaticJsonDocument<256> doc;  //set efficient size for jsonDoc
   DeserializationError err = deserializeJson(doc, input);
 
-  //test --> {"command":"-1","leds":[1,0,0,0]}
   // {"command":"triggerLed","leds":[-1,-1,-1,-1]}
 
   if (err) {
@@ -36,7 +35,7 @@ void processData(const char* input) {
     Serial.write("Led Is On");
   }
   if (ledOnOff[0] == 0) {
-    ledMapB=0b00000000;
+    ledMapB = 0b00000000;
     PORTB = ledMapB;
     Serial.write("Led Is Off");
   }
@@ -45,12 +44,7 @@ void processData(const char* input) {
     //i think there is a interruption because of the interruption bit
     ledMapB ^= -1;
     PORTB = ledMapB;
-    //Serial.write("LED has been triggered");
-    Serial.print("PORTB: ");
-    Serial.println(PORTB,BIN);
-    Serial.print("ledMapB: ");
-    Serial.println(ledMapB,BIN);
-    
+    Serial.write("all LED has been triggered");
   }
 }
 
@@ -81,12 +75,7 @@ void processIncomingByte(const byte inByte) {
   }
 }
 
-//receiving time of the data takes unnecessary amount of time..
 void loop() {
   while (Serial.available() > 0)
     processIncomingByte(Serial.read());
 }
-
-
-// char* input;
-// size_t inputLength; (optional)
