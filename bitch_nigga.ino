@@ -5,20 +5,14 @@ const unsigned int MAX_INPUT = 256;
 
 void setup() {
   Serial.begin(57600);
-  //pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void processData(const char* input) {
-  // StaticJsonDocument<256> doc;//set efficient size for jsonDoc
-  // DeserializationError err=deserializeJson(doc,input);
+  StaticJsonDocument<256> doc;//set efficient size for jsonDoc
+  DeserializationError err=deserializeJson(doc,input);
 
-  //const char* input =  "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
-  
-
-  //const char* sensor = doc["sensor"];
-  //long time = doc["time"];
-  //float lat = doc["data"][0];
-  //float lon = doc["data"][1];
+  //test --> {"command":"-1","leds":[1,0,0,0]}
 
   if (err) {
   Serial.print("ERRROR: ");
@@ -26,19 +20,20 @@ void processData(const char* input) {
   return; //break, cos you got error..
   }
 
+  const char* command = doc["command"];
+  int ledOnOff[4];
+  for (int i=0;i<4;i++) ledOnOff[i]=doc["leds"][i];
+
+  
 
 
-  if (String(input) == "on") {
-    PORTB = B00100000;
-    Serial.write("LED Is On");
-  }
-  if (String(input) == "off") {
-    PORTB = B00000000;
-    Serial.write("LED Is Off");
-  }
-  if (String(input) == "triggerLed") {
-    if(PORTB == B00000000) PORTB = B00100000;
-    else PORTB = B00000000;
+
+  if (ledOnOff[0]) {
+    PORTB = B00100000; Serial.write("Led Is On");}
+    else{PORTB = B00000000; Serial.write("Led Is Off");}
+
+  if (command == "triggerLed") {
+    PORTB ^= -1;
     Serial.write("LED has been triggered");
   }
 }
@@ -74,6 +69,7 @@ void processIncomingByte(const byte inByte) {
 void loop() {
   while (Serial.available() > 0)
     processIncomingByte(Serial.read());
+    
 }
 
 

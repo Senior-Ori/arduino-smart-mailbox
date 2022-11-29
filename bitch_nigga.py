@@ -5,6 +5,10 @@ import time
 
 ser = serial.Serial('COM5', baudrate=57600, timeout=.01)
 time.sleep(1)
+def writeJson():
+    return
+
+
 def turnOnLED():
     ser.write("on\r\n".encode())
     # i=0
