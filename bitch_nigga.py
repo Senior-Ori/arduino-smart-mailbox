@@ -2,20 +2,29 @@ import serial
 from tkinter import *
 import tkinter as tk
 import time
-
+import json
 ser = serial.Serial('COM5', baudrate=57600, timeout=.01)
 time.sleep(1)
-def writeJsonHandler(var,dataStr):
 
-    ser.write("".encode())
+DataDict = {"command": "", "leds": [-1, -1, -1, -1]}
+
+
+# DataDict = {"command": "", "leds": [-1, -1, -1, -1]}
+# DataDict["command"]="triggerLed"
+# print(f"{DataDict}\r\n".encode())
+
+def writeJsonHandler(name,values):
+    DataDict[name] = values
+    # if name=="triggerLed": DataDict["leds"] = [-1,-1,-1,-1]
+    # {"command":"triggerLed","leds":[-1,-1,-1,-1]}
+    ser.write(f"{DataDict}\r\n".encode())
+    DataDict["command"]=""
     return
 
 
 def turnOnLED():
-    writeJsonHandler("","")
-    # i=0
+    writeJsonHandler("leds",[1,0,1,0])
     while True:
-    #     i+=2
     #     print(f"Loding... number of checks for serial input:~=[{i}]")
         if ser.in_waiting:
             text1 = ser.readline().decode('utf')
@@ -24,20 +33,18 @@ def turnOnLED():
 
 
 def turnOffLED():
-    ser.write("off\r\n".encode())
-    # i=0
+    writeJsonHandler("leds",[0,0,0,0])
+
     while True:
-    #     i += 2
     #     print(f"Loding... number of checks for serial input:~=[{i}]")
         if ser.in_waiting:
             text1 = ser.readline().decode('utf')
             break
     my_var.set(str(text1))
 def turnOnOffLED():
-    ser.write("triggerLed\r\n".encode())
-    # i=0
+    DataDict["leds"] = [-1,-1,-1,-1]
+    writeJsonHandler("command","triggerLed")
     while True:
-    #     i += 2
     #     print(f"Loding... number of checks for serial input:~=[{i}]")
         if ser.in_waiting:
             text1 = ser.readline().decode('utf')
