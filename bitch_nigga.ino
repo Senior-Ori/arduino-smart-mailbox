@@ -46,7 +46,7 @@ void processData(const char* input) {
     Serial.write("all LED has been triggered");
   }
 }
-
+void shareDataJson
 void processIncomingByte(const byte inByte) {
   static char inputLine[MAX_INPUT];
   static unsigned int inputPos = 0;
