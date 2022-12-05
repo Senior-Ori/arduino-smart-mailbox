@@ -19,10 +19,18 @@ ser = serial.Serial('COM5', baudrate=57600, timeout=.01)  # set to the overflow 
 time.sleep(1)
 
 DataDict = {"command": "", "leds": [-1, -1, -1, -1]}
+DataInput = {}
 Flag = {"leds":False}
 index = {"times": 1}
-def getJson(strInput,var):
-    
+def getJson(var):
+    data = f"{ser.readline().decode('utf')}"
+    indexMs = data.find(f"\"{var}\"")
+    if indexMs:
+        indexLs = data.find("\"}", indexMs)
+        text = str(data[indexMs + 7:indexLs])
+        DataInput[var] = text
+        return my_var.set(DataInput[var])
+    return
 
 def clock():
     hour = time.strftime("%H")
@@ -32,7 +40,7 @@ def clock():
     if Flag["leds"]:
        while ser.in_waiting:
            # my_var.set(f"{ser.readline().decode('utf')}")
-           getJson(f"{ser.readline().decode('utf')}","leds");
+           getJson("msg")
 
 
     label1.config(text=hour+":"+minute+":"+second)
@@ -74,6 +82,14 @@ tk.Button(root, name="btn_Off",text="off", width=10, command=turnOffLED).grid(ro
 tk.Button(root, name="btn_Trig",text="Trigger", width=10, command=turnOnOffLED).grid(row=0, column=2)
 label1 = tk.Label(root, name="btn_loop",text="1", width=10,fg="green",bg="black")
 label1.grid(row=0, column=3)
+mail1 = tk.Label(root, name="mail1",text="1", width=10,fg="green",bg="black")
+mail1.grid(row=3, column=0)
+mail2 = tk.Label(root, name="mail2",text="1", width=10,fg="green",bg="black")
+mail2.grid(row=3, column=1)
+mail3 = tk.Label(root, name="mail3",text="1", width=10,fg="green",bg="black")
+mail3.grid(row=3, column=2)
+mail4 = tk.Label(root, name="mail4",text="1", width=10,fg="green",bg="black")
+mail4.grid(row=3, column=3)
 tk.Label(root,name="prompt_label", textvariable=my_var, width=30, fg="red").grid(row=1, column=0, columnspan=3,rowspan=2)
 #label1.after(1000,update)
 
