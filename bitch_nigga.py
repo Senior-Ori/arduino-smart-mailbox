@@ -22,29 +22,32 @@ DataDict = {"command": "", "leds": [-1, -1, -1, -1]}
 DataInput = {}
 Flag = {"leds":False}
 index = {"times": 1}
-def getJson(var):
+def getJson():
     data = f"{ser.readline().decode('utf')}"
-    indexMs = data.find(f"\"{var}\"")
+    indexMs = data.find(f"\"msg\"")
     if indexMs:
         indexLs = data.find("\"}", indexMs)
         text = str(data[indexMs + 7:indexLs])
-        DataInput[var] = text
-        return my_var.set(DataInput[var])
+        DataInput["msg"] = text
+        # my_var.set(DataInput["msg"])
+    indexMs = data.find(f"\"ir\"")
+    if indexMs:
+        indexLs = data.find("\"}", indexMs)
+        IRs = str(data[indexMs + 6:indexLs])
+        DataInput["ir"] = IRs
+        # my_var.set(DataInput["ir"])
+        my_var.set(data)
     return
 
 def clock():
     hour = time.strftime("%H")
     minute = time.strftime("%M")
     second = time.strftime("%S")
-
-    if Flag["leds"]:
-       while ser.in_waiting:
-           # my_var.set(f"{ser.readline().decode('utf')}")
-           getJson("msg")
+    if ser.in_waiting: getJson()
 
 
     label1.config(text=hour+":"+minute+":"+second)
-    label1.after(1000,clock)
+    label1.after(10,clock)
 def writeJsonHandler(name, values):
     DataDict[name] = values
     ser.write(f"{DataDict}\r\n".encode())  # write to arduino in a json structure format.
@@ -90,7 +93,7 @@ mail3 = tk.Label(root, name="mail3",text="1", width=10,fg="green",bg="black")
 mail3.grid(row=3, column=2)
 mail4 = tk.Label(root, name="mail4",text="1", width=10,fg="green",bg="black")
 mail4.grid(row=3, column=3)
-tk.Label(root,name="prompt_label", textvariable=my_var, width=30, fg="red").grid(row=1, column=0, columnspan=3,rowspan=2)
+tk.Label(root,name="prompt_label", textvariable=my_var, width=50, fg="red").grid(row=1, column=0, columnspan=4,rowspan=2)
 #label1.after(1000,update)
 
 clock()
