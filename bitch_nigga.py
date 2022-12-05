@@ -21,6 +21,9 @@ time.sleep(1)
 DataDict = {"command": "", "leds": [-1, -1, -1, -1]}
 Flag = {"leds":False}
 index = {"times": 1}
+def getJson(strInput,var):
+    
+
 def clock():
     hour = time.strftime("%H")
     minute = time.strftime("%M")
@@ -28,7 +31,8 @@ def clock():
 
     if Flag["leds"]:
        while ser.in_waiting:
-           my_var.set(f"{ser.readline().decode('utf')}")
+           # my_var.set(f"{ser.readline().decode('utf')}")
+           getJson(f"{ser.readline().decode('utf')}","leds");
 
 
     label1.config(text=hour+":"+minute+":"+second)

@@ -1,15 +1,50 @@
 #include <ArduinoJson.h>
 #include <ArduinoJson.hpp>
+#include <stdio.h>
+#include <string.h>
+
 
 const unsigned int MAX_INPUT = 256;
 const byte LEDs[] = { 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000 };
+char prevIRs[]= {'[','0',',','0',',','0',',','0',']'};
+bool flagWrite= false;
 byte ledMapB = 0b00000000;
+char jsonStr;
 
 void setup() {
   Serial.begin(57600);
+  
   DDRD &= B11111111;
+
+  pinMode(4, INPUT);
+  pinMode(5, INPUT);
+  pinMode(6, INPUT);
+  pinMode(7, INPUT);
 }
 
+void serialWrite(const char * var,const char * value){
+  strncat(var, value, strlen(var));
+
+  Serial.write(value);
+  flagWrite=false;
+}
+
+
+
+void irRead(){
+  const char IRs[] = {'[',digitalRead(4)+'0',',',digitalRead(5)+'0',',',digitalRead(6)+'0',',',digitalRead(7)+'0',']'};
+  if (!(strcmp(IRs, prevIRs)==0))
+  serialWrite("\"ir\":",IRs);
+  strcpy(prevIRs, IRs);
+  // OriPrinter("","");
+  
+//   char str[5];
+// for (int i=0;i<4;i++){
+//   sprintf(str, "%d", IRs[i]);
+  
+//   }
+  
+}
 void processData(const char* input) {
   StaticJsonDocument<256> doc;  //set efficient size for jsonDoc
   DeserializationError err = deserializeJson(doc, input);
@@ -37,16 +72,17 @@ void processData(const char* input) {
     } else flag = 0;
   }
   if (flag)
-    if (count) Serial.write("Led Is On");
-    else Serial.write("Led Is Off");
+    if (count) serialWrite("msg","Led Is On");
+    else serialWrite("msg","Led Is Off");
+    flagWrite=true;
 
   if (String(command) == "triggerLed") {
     ledMapB ^= -1;
     PORTB = ledMapB;
-    Serial.write("all LED has been triggered");
+    serialWrite("msg","all LED has been triggered");
+    flagWrite=true;
   }
 }
-void shareDataJson
 void processIncomingByte(const byte inByte) {
   static char inputLine[MAX_INPUT];
   static unsigned int inputPos = 0;
@@ -75,6 +111,9 @@ void processIncomingByte(const byte inByte) {
 }
 
 void loop() {
+  irRead();
   while (Serial.available() > 0)
     processIncomingByte(Serial.read());
+  if (flagWrite) serialWrite("\0","\0");
+  
 }
