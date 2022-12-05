@@ -7,6 +7,8 @@
 const unsigned int MAX_INPUT = 256;
 const byte LEDs[] = { 0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000 };
 char prevIRs[]= {'[','0',',','0',',','0',',','0',']'};
+char thisIRs[10]={'\0'};
+char lastMessage[255]={""};
 bool flagWrite= false;
 byte ledMapB = 0b00000000;
 char jsonStr;
@@ -26,21 +28,33 @@ void setup() {
 
 void serialWrite(const char * var,const char * value){
   char msg[255];
-  strcpy(msg,var);
+  if (strcmp(var,"ir")==0){
+  strcpy(msg,"{\"ir\":");
   strcat(msg, value);
-
-  Serial.println(msg);
-
-  
-  flagWrite=false;
+  strcat(msg, ",\"msg\":\"");
+  strcat(msg, lastMessage);
+  strcat(msg, "\"}\r\n");
+  memcpy(thisIRs,value,strlen(value)+1);
+  Serial.print(msg);
+}else if (strcmp(var,"msg")==0){
+  strcpy(msg,"{\"ir\":");
+  strcat(msg, thisIRs);
+  strcat(msg, ",\"msg\":\"");
+  strcat(msg, value);
+  strcat(msg, "\"}\r\n");
+  memcpy(lastMessage,value,strlen(value)+1);
+  Serial.print(msg);
+}else{ 
+flagWrite=false;}
 }
 
 
 
 void irRead(){
   const char IRs[] = {'[',digitalRead(4)+'0',',',digitalRead(5)+'0',',',digitalRead(6)+'0',',',digitalRead(7)+'0',']'};
-  if (!(strcmp(IRs, prevIRs)==0)) serialWrite("\"ir\":",IRs);
+  if (!(strcmp(IRs, prevIRs)==0)) serialWrite("ir",IRs);
   memcpy(prevIRs,IRs,strlen(IRs)+1);
+  //memcpy(thisIRs,IRs,strlen(IRs)+1);
 }
 void processData(const char* input) {
   StaticJsonDocument<256> doc;  //set efficient size for jsonDoc
@@ -110,6 +124,6 @@ void processIncomingByte(const byte inByte) {
 void loop() {
   irRead();
   while (Serial.available() > 0) processIncomingByte(Serial.read());
-  //if (flagWrite) serialWrite("\0","\0");
+  if (flagWrite) serialWrite("\0","\0");
   
 }
