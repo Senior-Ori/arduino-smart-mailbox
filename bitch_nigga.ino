@@ -22,10 +22,16 @@ void setup() {
   pinMode(7, INPUT);
 }
 
-void serialWrite(const char * var,const char * value){
-  strncat(var, value, strlen(var));
 
-  Serial.write(value);
+
+void serialWrite(const char * var,const char * value){
+  char msg[255];
+  strcpy(msg,var);
+  strcat(msg, value);
+
+  Serial.println(msg);
+
+  
   flagWrite=false;
 }
 
@@ -33,17 +39,8 @@ void serialWrite(const char * var,const char * value){
 
 void irRead(){
   const char IRs[] = {'[',digitalRead(4)+'0',',',digitalRead(5)+'0',',',digitalRead(6)+'0',',',digitalRead(7)+'0',']'};
-  if (!(strcmp(IRs, prevIRs)==0))
-  serialWrite("\"ir\":",IRs);
-  strcpy(prevIRs, IRs);
-  // OriPrinter("","");
-  
-//   char str[5];
-// for (int i=0;i<4;i++){
-//   sprintf(str, "%d", IRs[i]);
-  
-//   }
-  
+  if (!(strcmp(IRs, prevIRs)==0)) serialWrite("\"ir\":",IRs);
+  memcpy(prevIRs,IRs,strlen(IRs)+1);
 }
 void processData(const char* input) {
   StaticJsonDocument<256> doc;  //set efficient size for jsonDoc
@@ -112,8 +109,7 @@ void processIncomingByte(const byte inByte) {
 
 void loop() {
   irRead();
-  while (Serial.available() > 0)
-    processIncomingByte(Serial.read());
-  if (flagWrite) serialWrite("\0","\0");
+  while (Serial.available() > 0) processIncomingByte(Serial.read());
+  //if (flagWrite) serialWrite("\0","\0");
   
 }
